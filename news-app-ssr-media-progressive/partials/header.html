@@ -1,0 +1,29 @@
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="theme-color" content="#FF5733">
+  <title>The News - a news website</title>
+  <base href="/">
+  <!-- Bootstrap core CSS -->
+  <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="app.css" rel="stylesheet">
+  <script src="app.js"></script>
+  <link rel="manifest" href="manifest.json">
+  <!-- test -->
+  <script type="module">
+    import { Workbox } from 'https://storage.googleapis.com/workbox-cdn/releases/4.0.0/workbox-window.prod.mjs';
+    
+    if ('serviceWorker' in navigator) {
+      const wb = new Workbox('/service-worker.js');
+      wb.register();
+      wb.messageSW({
+        type: 'WINDOW_OBJECT',
+        payload: {
+          height: window.screen.height,
+          width: window.screen.width
+        }
+      });
+    }
+  </script>
+</head>

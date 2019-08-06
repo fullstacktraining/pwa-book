@@ -1,0 +1,68 @@
+const registerServiceWorker = async () => {
+  const swRegistration = await navigator.serviceWorker.register('service-worker.js');
+  return swRegistration;
+}
+
+const API_URL = 'http://localhost:3000/api/news';
+
+const main = async () => {
+  await registerServiceWorker();
+  let getUpdateFromNetwork;
+  let dataFromNetwork = false;
+  try {
+    getUpdateFromNetwork = await fetch(API_URL);
+    const articles = await getUpdateFromNetwork.json();
+    if (articles) {
+      dataFromNetwork = true;
+      articles.forEach(article => {
+        const card = generateCard(article);
+        document.getElementById('articles').innerHTML += card;
+      });
+    }
+  } catch(error) {
+    // no data from network
+    console.log(error);
+  }
+
+  try {
+    const response = await caches.match(API_URL);
+    if (!response) {
+      throw new Error('No data in cache.');
+    }
+    const articles = await response.json();
+    if (!dataFromNetwork) {
+      articles.forEach(article => {
+        const card = generateCard(article);
+        document.getElementById('articles').innerHTML += card;
+      });
+    }
+  } catch(error) {
+    console.log(error);
+    return getUpdateFromNetwork;
+  }
+}
+
+main();
+
+/*
+*
+*/
+function generateCard(article) {
+  const today = new Date();
+  const added = new Date(article.added);
+  const difference = parseInt((today - added) / (1000 * 3600));
+  
+  return `<div class="col-md-4">
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+      <p class="card-text">${article.slug}</p>
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="btn-group">
+          <a href="#" class="btn btn-sm btn-outline-primary">Read more</a>
+          <a href="#" class="btn btn-sm btn-outline-secondary read-later">Read later</a>
+        </div>
+        <small class="text-muted">${difference === 1 ? `${difference} hour ago` : `${difference} hours ago`}</small>
+      </div>
+    </div>
+  </div>`;
+}
